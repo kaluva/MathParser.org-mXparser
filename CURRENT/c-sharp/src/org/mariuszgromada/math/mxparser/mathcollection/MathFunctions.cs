@@ -55,6 +55,7 @@
  */
 using System;
 using System.Globalization;
+using System.Threading;
 
 namespace org.mariuszgromada.math.mxparser.mathcollection {
 	/**
@@ -214,6 +215,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double bellNumber(int n) {
+			return bellNumber(CancellationToken.None, n);
+		}
+		public static double bellNumber(CancellationToken token,int n) {
 			double result = Double.NaN;
 			if (n > 1) {
 				n -= 1;
@@ -226,7 +230,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 						bellTriangle[r, k+1] = bellTriangle[r-1, k] + bellTriangle[r, k];
 					if (r < n)
 						bellTriangle[r+1, 0] = bellTriangle[r, r];
-					if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+					if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				}
 				result = bellTriangle[n, n];
 			} else if (n >= 0)
@@ -241,9 +245,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise return Double.NaN.
 		 */
 		public static double bellNumber(double n) {
+			return bellNumber(CancellationToken.None, n);
+		}
+		public static double bellNumber(CancellationToken token,double n) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
-			return bellNumber( (int)Math.Round(n) );
+			return bellNumber(token, (int)Math.Round(n) );
 		}
 		/**
 		 * Euler numbers
@@ -255,6 +262,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise return Double.NaN.
 		 */
 		public static double eulerNumber(int n, int k) {
+			return eulerNumber(CancellationToken.None, n, k);
+		}
+		public static double eulerNumber(CancellationToken token,int n, int k) {
 			if ( n < 0)
 				return Double.NaN;
 			if (k < 0)
@@ -264,8 +274,8 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					return 1;
 				else
 					return 0;
-			if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
-			return (k+1) * eulerNumber(n-1, k) + (n-k) * eulerNumber(n-1, k-1);
+			if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
+			return (k+1) * eulerNumber(token,n-1, k) + (n-k) * eulerNumber(token,n-1, k-1);
 		}
 		/**
 		 * Euler numbers
@@ -277,9 +287,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise return Double.NaN.
 		 */
 		public static double eulerNumber(double n, double k) {
+			return eulerNumber(CancellationToken.None, n, k);
+		}
+		public static double eulerNumber(CancellationToken token,double n, double k) {
 			if (Double.IsNaN(n) || Double.IsNaN(k))
 				return Double.NaN;
-			return eulerNumber( (int)Math.Round(n), (int)Math.Round(k) );
+			return eulerNumber(token, (int)Math.Round(n), (int)Math.Round(k) );
 		}
 		/**
 		 * Factorial
@@ -289,6 +302,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return     Factorial if n >=0, otherwise returns Double.NaN.
 		 */
 		public static double factorial(int n) {
+			return factorial(CancellationToken.None, n);
+		}
+		public static double factorial(CancellationToken token,int n) {
 			double f = Double.NaN;
 			if (n >= 0)
 				if (n < 2) f = 1;
@@ -296,7 +312,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					f = 1;
 					for (int i = 1; i <= n; i++) {
 						f = f*i;
-						if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+						if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 					}
 				}
 			return f;
@@ -310,9 +326,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double factorial(double n) {
+			return factorial(CancellationToken.None, n);
+		}
+		public static double factorial(CancellationToken token,double n) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
-			return factorial( (int)Math.Round(n) );
+			return factorial(token, (int)Math.Round(n) );
 		}
 		/**
 		 * Generalized binomial coefficient
@@ -324,6 +343,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             n = Double.NaN or k<0 returns Double.NaN.
 		 */
 		public static double binomCoeff(double n, long k) {
+			return binomCoeff(CancellationToken.None, n, k);
+		}
+		public static double binomCoeff(CancellationToken token,double n, long k) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
 			double result = Double.NaN;
@@ -332,13 +354,13 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				if (k > 0 )
 					for (long i = 0; i <= k-1; i++) {
 						numerator*=(n-i);
-						if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+						if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 					}
 				double denominator = 1;
 				if ( k > 1 )
 					for (long i = 1; i <= k; i++) {
 						denominator *= i;
-						if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+						if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 					}
 				result = numerator / denominator;
 			}
@@ -354,9 +376,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double binomCoeff(double n, double k) {
+			return binomCoeff(CancellationToken.None, n, k);
+		}
+		public static double binomCoeff(CancellationToken token,double n, double k) {
 			if (Double.IsNaN(n) || Double.IsNaN(k))
 				return Double.NaN;
-			return binomCoeff(n, (long)Math.Round(k) );
+			return binomCoeff(token,n, (long)Math.Round(k) );
 		}
 		/**
 		 * Generalized coefficient returning number of k permutations
@@ -369,6 +394,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *           returns Double.NaN
 		 */
 		public static double numberOfPermutations(double n, long k) {
+			return numberOfPermutations(CancellationToken.None, n, k);
+		}
+		public static double numberOfPermutations(CancellationToken token,double n, long k) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
 			double result = Double.NaN;
@@ -377,7 +405,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				if (k > 0 )
 					for (long i = 0; i <= k-1; i++) {
 						numerator*=(n-i);
-						if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+						if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 					}
 				result = numerator;
 			}
@@ -394,9 +422,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *           returns Double.NaN
 		 */
 		public static double numberOfPermutations(double n, double k) {
+			return numberOfPermutations(CancellationToken.None, n, k);
+		}
+		public static double numberOfPermutations(CancellationToken token,double n, double k) {
 			if (Double.IsNaN(n) || Double.IsNaN(k))
 				return Double.NaN;
-			return numberOfPermutations(n, (long)Math.Round(k) );
+			return numberOfPermutations(token,n, (long)Math.Round(k) );
 		}
 		/**
 		 * Bernoulli numbers
@@ -408,14 +439,17 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double bernoulliNumber(int m, int n) {
+			return bernoulliNumber(CancellationToken.None, m, n);
+		}
+		public static double bernoulliNumber(CancellationToken token,int m, int n) {
 			double result = Double.NaN;
 			if ( (m >= 0) && (n >= 0) ) {
 				result = 0;
 				for (int k = 0; k <= m; k++)
 					for (int v = 0; v <= k; v++) {
-						result += Math.Pow(-1, v) * binomCoeff(k, v)
+						result += Math.Pow(-1, v) * binomCoeff(token,k, v)
 							* (Math.Pow(n + v, m) / (k + 1));
-						if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+						if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 					}
 			}
 			return result;
@@ -430,9 +464,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double bernoulliNumber(double m, double n) {
+			return bernoulliNumber(CancellationToken.None, m, n);
+		}
+		public static double bernoulliNumber(CancellationToken token,double m, double n) {
 			if (Double.IsNaN(m) || Double.IsNaN(n))
 				return Double.NaN;
-			return bernoulliNumber( (int)Math.Round(m), (int)Math.Round(n) );
+			return bernoulliNumber(token, (int)Math.Round(m), (int)Math.Round(n) );
 		}
 		/**
 		 * Stirling numbers of the first kind
@@ -443,6 +480,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return     Stirling numbers of the first kind
 		 */
 		public static double Stirling1Number(int n, int k) {
+			return Stirling1Number(CancellationToken.None, n, k);
+		}
+		public static double Stirling1Number(CancellationToken token,int n, int k) {
 			if (k > n)
 				return 0;
 			if (n == 0)
@@ -455,8 +495,8 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					return 1;
 				else
 					return 0;
-			if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
-			return (n-1) * Stirling1Number(n-1, k) + Stirling1Number(n-1, k-1);
+			if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
+			return (n-1) * Stirling1Number(token,n-1, k) + Stirling1Number(token,n-1, k-1);
 		}
 		/**
 		 * Stirling numbers of the first kind
@@ -468,9 +508,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double Stirling1Number(double n, double k) {
+			return Stirling1Number(CancellationToken.None, n, k);
+		}
+		public static double Stirling1Number(CancellationToken token,double n, double k) {
 			if (Double.IsNaN(n) || Double.IsNaN(k))
 				return Double.NaN;
-			return Stirling1Number( (int)Math.Round(n), (int)Math.Round(k) );
+			return Stirling1Number(token, (int)Math.Round(n), (int)Math.Round(k) );
 		}
 		/**
 		 * Stirling numbers of the second kind
@@ -481,6 +524,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return     Stirling numbers of the second kind
 		 */
 		public static double Stirling2Number(int n, int k) {
+			return Stirling2Number(CancellationToken.None, n, k);
+		}
+		public static double Stirling2Number(CancellationToken token,int n, int k) {
 			if (k > n)
 				return 0;
 			if (n == 0)
@@ -493,8 +539,8 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					return 1;
 				else
 					return 0;
-			if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
-			return k * Stirling2Number(n-1, k) + Stirling2Number(n-1, k-1);
+			if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
+			return k * Stirling2Number(token,n-1, k) + Stirling2Number(token,n-1, k-1);
 		}
 		/**
 		 * Stirling numbers of the second kind
@@ -506,9 +552,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double Stirling2Number(double n, double k) {
+			return Stirling2Number(CancellationToken.None, n, k);
+		}
+		public static double Stirling2Number(CancellationToken token,double n, double k) {
 			if (Double.IsNaN(n) || Double.IsNaN(k))
 				return Double.NaN;
-			return Stirling2Number( (int)Math.Round(n), (int)Math.Round(k) );
+			return Stirling2Number(token, (int)Math.Round(n), (int)Math.Round(k) );
 		}
 		/**
 		 * Worpitzky numbers
@@ -520,12 +569,15 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise return Double.NaN.
 		 */
 		public static double worpitzkyNumber(int n, int k) {
+			return worpitzkyNumber(CancellationToken.None, n, k);
+		}
+		public static double worpitzkyNumber(CancellationToken token,int n, int k) {
 			double result = Double.NaN;
 			if ( (n >= 0) && (k >= 0) && (k <= n) ){
 				result = 0;
 				for (int v = 0; v <= k; v++) {
-					result += Math.Pow(-1, v + k) * Math.Pow(v + 1, n) * binomCoeff(k, v);
-					if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+					result += Math.Pow(-1, v + k) * Math.Pow(v + 1, n) * binomCoeff(token,k, v);
+					if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				}
 			}
 			return result;
@@ -540,9 +592,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise return Double.NaN.
 		 */
 		public static double worpitzkyNumber(double n, double k) {
+			return worpitzkyNumber(CancellationToken.None, n, k);
+		}
+		public static double worpitzkyNumber(CancellationToken token,double n, double k) {
 			if (Double.IsNaN(n) || Double.IsNaN(k))
 				return Double.NaN;
-			return worpitzkyNumber( (int)Math.Round(n), (int)Math.Round(k) );
+			return worpitzkyNumber(token, (int)Math.Round(n), (int)Math.Round(k) );
 		}
 		/**
 		 * Harmonic numer
@@ -553,6 +608,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             (empty summation operator)
 		 */
 		public static double harmonicNumber(int n) {
+			return harmonicNumber(CancellationToken.None, n);
+		}
+		public static double harmonicNumber(CancellationToken token,int n) {
 			if (n <= 0)
 				return 0;
 			if (n == 1)
@@ -560,7 +618,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double h = 1;
 			for (double k = 2.0; k <= n; k++) {
 				h += 1.0 / k;
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			return h;
 		}
@@ -573,9 +631,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN
 		 */
 		public static double harmonicNumber(double n) {
+			return harmonicNumber(CancellationToken.None, n);
+		}
+		public static double harmonicNumber(CancellationToken token,double n) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
-			return harmonicNumber( (int)Math.Round(n) );
+			return harmonicNumber(token, (int)Math.Round(n) );
 		}
 		/**
 		 * Harmonic number 1/1 + 1/2^x + ... + 1/n^x
@@ -587,6 +648,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double harmonicNumber(double x, int n) {
+			return harmonicNumber(CancellationToken.None, x, n);
+		}
+		public static double harmonicNumber(CancellationToken token,double x, int n) {
 			if  ( (Double.IsNaN(x)) || (x < 0) )
 				return Double.NaN;
 			if (n <= 0)
@@ -596,7 +660,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double h = 1;
 			for (double k = 2.0; k <= n; k++) {
 				h += 1 / power(k, x);
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			return h;
 		}
@@ -610,9 +674,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double harmonicNumber(double x, double n) {
+			return harmonicNumber(CancellationToken.None, x, n);
+		}
+		public static double harmonicNumber(CancellationToken token,double x, double n) {
 			if ( (Double.IsNaN(x)) || (Double.IsNaN(n)) )
 				return Double.NaN;
-			return harmonicNumber( x, (int)Math.Round(n) );
+			return harmonicNumber(token, x, (int)Math.Round(n) );
 		}
 		/**
 		 * Catalan numbers
@@ -622,7 +689,11 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return     Catalan numbers
 		 */
 		public static double catalanNumber(int n) {
-			return binomCoeff(2*n, n) * div(1, n+1);
+			return catalanNumber(CancellationToken.None, n);
+
+		}
+		public static double catalanNumber(CancellationToken token,int n) {
+			return binomCoeff(token,2*n, n) * div(1, n+1);
 		}
 		/**
 		 * Catalan numbers
@@ -633,9 +704,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double catalanNumber(double n) {
+			return catalanNumber(CancellationToken.None, n);
+		}
+		public static double catalanNumber(CancellationToken token,double n) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
-			return catalanNumber( (int)Math.Round(n) );
+			return catalanNumber(token, (int)Math.Round(n) );
 		}
 		/**
 		 * Fibonacci numbers
@@ -646,14 +720,17 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double fibonacciNumber(int n) {
+			return fibonacciNumber(CancellationToken.None, n);
+		}
+		public static double fibonacciNumber(CancellationToken token,int n) {
 			if (n < 0 )
 				return Double.NaN;
 			if (n == 0)
 				return 0;
 			if (n == 1)
 				return 1;
-			if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
-			return fibonacciNumber(n-1) + fibonacciNumber(n-2);
+			if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
+			return fibonacciNumber(token,n-1) + fibonacciNumber(token,n-2);
 		}
 		/**
 		 * Fibonacci numbers
@@ -664,9 +741,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double fibonacciNumber(double n) {
+			return fibonacciNumber(CancellationToken.None, n);
+		}
+		public static double fibonacciNumber(CancellationToken token,double n) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
-			return fibonacciNumber( (int)Math.Round(n) );
+			return fibonacciNumber(token, (int)Math.Round(n) );
 		}
 		/**
 		 * Lucas numebrs
@@ -677,14 +757,17 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double lucasNumber(int n) {
+			return lucasNumber(CancellationToken.None, n);
+		}
+		public static double lucasNumber(CancellationToken token,int n) {
 			if (n < 0 )
 				return Double.NaN;
 			if (n == 0)
 				return 2;
 			if (n == 1)
 				return 1;
-			if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
-			return lucasNumber(n-1) + lucasNumber(n-2);
+			if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
+			return lucasNumber(token,n-1) + lucasNumber(token,n-2);
 		}
 		/**
 		 * Lucas numebrs
@@ -695,9 +778,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double lucasNumber(double n) {
+			return lucasNumber(CancellationToken.None, n);
+		}
+		public static double lucasNumber(CancellationToken token,double n) {
 			if (Double.IsNaN(n))
 				return Double.NaN;
-			return lucasNumber( (int)Math.Round(n) );
+			return lucasNumber(token, (int)Math.Round(n) );
 		}
 		/**
 		 * Kronecker delta
@@ -740,6 +826,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             value, otherwise returns Double.NaN.
 		 */
 		public static double continuedFraction(params double[] sequence) {
+			return continuedFraction(CancellationToken.None, sequence);
+		}
+		public static double continuedFraction(CancellationToken token,params double[] sequence) {
 			if (sequence == null) return Double.NaN;
 			if (sequence.Length == 0) return Double.NaN;
 			double cf = 0;
@@ -758,7 +847,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 						return Double.NaN;
 					cf = a + 1.0 / cf;
 				}
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			return cf;
 		}
@@ -771,15 +860,15 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *
 		 * @return     continued polynomial value
 		 */
-		private static double continuedPolynomial(int n, double[] x) {
+		private static double continuedPolynomial(CancellationToken token,int n, double[] x) {
 			if (x == null) return Double.NaN;
 			if (x.Length == 0) return Double.NaN;
 			if (n == 0)
 				return 1;
 			if (n == 1)
 				return x[0];
-			if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
-			return x[n-1] * continuedPolynomial(n-1, x) + continuedPolynomial(n-2, x);
+			if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
+			return x[n-1] * continuedPolynomial(token,n-1, x) + continuedPolynomial(token,n-2, x);
 		}
 		/**
 		 * Continued polynomial
@@ -791,14 +880,17 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             Double.NaN.
 		 */
 		public static double continuedPolynomial(params double[] x) {
+			return continuedPolynomial(CancellationToken.None, x);
+		}
+		public static double continuedPolynomial(CancellationToken token,params double[] x) {
 			if (x == null) return Double.NaN;
 			if (x.Length == 0) return Double.NaN;
 			foreach (double d in x) {
 				if (Double.IsNaN(d))
 					return Double.NaN;
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
-			return continuedPolynomial(x.Length, x);
+			return continuedPolynomial(token,x.Length, x);
 		}
 		/**
 		 * Euler polynomial
@@ -810,6 +902,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double eulerPolynomial(int m, double x) {
+			return eulerPolynomial(CancellationToken.None, m, x);
+		}
+		public static double eulerPolynomial(CancellationToken token,int m, double x) {
 			if (Double.IsNaN(x))
 				return Double.NaN;
 			double result = Double.NaN;
@@ -817,8 +912,8 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				result = 0;
 				for (int n = 0; n <= m; n++) {
 					for (int k = 0; k <= n; k++) {
-						result += Math.Pow(-1, k) * binomCoeff(n, k) * Math.Pow(x + k, m);
-						if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+						result += Math.Pow(-1, k) * binomCoeff(token,n, k) * Math.Pow(x + k, m);
+						if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 					}
 					result /= Math.Pow(2, n);
 				}
@@ -835,9 +930,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *             otherwise returns Double.NaN.
 		 */
 		public static double eulerPolynomial(double m, double x) {
+			return eulerPolynomial(CancellationToken.None, m, x);
+		}
+		public static double eulerPolynomial(CancellationToken token,double m, double x) {
 			if (Double.IsNaN(m) || Double.IsNaN(x))
 				return Double.NaN;
-			return eulerPolynomial( (int)Math.Round(m), (int)Math.Round(x) );
+			return eulerPolynomial(token, (int)Math.Round(m), (int)Math.Round(x) );
 		}
 		/**
 		 * Characteristic function x in (a,b)
@@ -1124,6 +1222,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return    Tetration result.
 		 */
 		public static double tetration(double a, double n) {
+			return tetration(CancellationToken.None, a, n);
+		}
+		public static double tetration(CancellationToken token,double a, double n) {
 			if (Double.IsNaN(a)) return Double.NaN;
 			if (Double.IsNaN(n)) return Double.NaN;
 			if (Double.IsPositiveInfinity(n)) {
@@ -1132,7 +1233,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				if (abs(a - MathConstants.EXP_1_OVER_E) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON)
 					return MathConstants.E;
 				if ((a > MathConstants.EXP_MINUS_E) && (a < MathConstants.EXP_1_OVER_E))
-					return SpecialFunctions.lambertW(-MathFunctions.ln(a), 0) / (-MathFunctions.ln(a));
+					return SpecialFunctions.lambertW(token,-MathFunctions.ln(a), 0) / (-MathFunctions.ln(a));
 				if (a > MathConstants.EXP_1_OVER_E) return Double.PositiveInfinity;
 				if (a < MathConstants.EXP_MINUS_E) return Double.NaN;
 			}
@@ -1155,7 +1256,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double r = a;
 			for (double i = 2; i <= n; i++) {
 				r = Math.Pow(a, r);
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			return r;
 		}
@@ -1853,6 +1954,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return         Rounded value
 		 */
 		public static double roundHalfUp(double value, int places) {
+			return roundHalfUp(CancellationToken.None, value, places);
+		}
+		public static double roundHalfUp(CancellationToken token,double value, int places) {
 			if (Double.IsNaN(value)) return Double.NaN;
 			if (places < 0) return Double.NaN;
 			if (Double.IsNegativeInfinity(value)) return Double.NegativeInfinity;
@@ -1870,7 +1974,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double multiplier = 1;
 			for (int place = 0; place < places; place++) {
 				multiplier = Math.Floor(multiplier * 10);
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			double valueMultiplied = value * multiplier;
 			double valueFloor = Math.Floor(valueMultiplied);
@@ -1884,7 +1988,10 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @param places   decimal places
 		 * @return         Rounded value
 		 */
- 		public static double roundDown(double value, int places) {
+		public static double roundDown(double value, int places) {
+			return roundDown(CancellationToken.None, value, places);
+		}
+ 		public static double roundDown(CancellationToken token,double value, int places) {
  			if (Double.IsNaN(value)) return Double.NaN;
 			if (places < 0) return Double.NaN;
  			if (value == Double.NegativeInfinity) return Double.NegativeInfinity;
@@ -1902,7 +2009,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
  			double multiplier = 1;
  			for (int place = 0; place < places; place++) {
  				multiplier = Math.Floor(multiplier * 10);
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
  			double valueMultiplied = value * multiplier;
  			double valueFloor = Math.Floor(valueMultiplied);
@@ -2308,11 +2415,14 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *                 then returns Double.NaN.
 		 */
 		public static double coalesce(double[] values) {
+			return coalesce(CancellationToken.None, values);
+		}
+		public static double coalesce(CancellationToken token,double[] values) {
 			if (values == null) return Double.NaN;
 			if (values.Length == 0) return Double.NaN;
 			foreach (double v in values) {
 				if (!Double.IsNaN(v)) return v;
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			return Double.NaN;
 		}
