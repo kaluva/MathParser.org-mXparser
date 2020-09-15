@@ -54,6 +54,7 @@
  *                              "Yes, up to isomorphism."
  */
 using System;
+using System.Threading;
 
 namespace org.mariuszgromada.math.mxparser.mathcollection {
 	/**
@@ -411,6 +412,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *           otherwise returns BooleanAlgebra.FALSE
 		 */
 		public static double andVariadic(params double[] values) {
+			return andVariadic(CancellationToken.None, values);
+		}
+		public static double andVariadic(CancellationToken token,params double[] values) {
 			if (values == null) return Double.NaN;
 			if (values.Length == 0) return Double.NaN;
 			int cntTrue = 0;
@@ -419,7 +423,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				bv = double2IntBoolean(v);
 				if (bv == FALSE) return FALSE;
 				if (bv == TRUE) cntTrue++;
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			if (cntTrue == values.Length) return TRUE;
 			else return Double.NaN;
@@ -432,6 +436,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *           otherwise returns BooleanAlgebra.FALSE
 		 */
 		public static double orVariadic(params double[] values) {
+			return orVariadic(CancellationToken.None, values);
+		}
+		public static double orVariadic(CancellationToken token,params double[] values) {
 			if (values == null) return Double.NaN;
 			if (values.Length == 0) return Double.NaN;
 			int cntFalse = 0;
@@ -440,7 +447,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				bv = double2IntBoolean(v);
 				if (bv == TRUE) return TRUE;
 				if (bv == FALSE) cntFalse++;
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			if (cntFalse == values.Length) return FALSE;
 			else return Double.NaN;
@@ -453,6 +460,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *           otherwise returns BooleanAlgebra.FALSE
 		 */
 		public static double xorVariadic(params double[] values) {
+			return xorVariadic(CancellationToken.None, values);
+		}
+		public static double xorVariadic(CancellationToken token,params double[] values) {
 			if (values == null) return Double.NaN;
 			if (values.Length == 0) return Double.NaN;
 			int cntTrue = 0;
@@ -464,7 +474,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					if (cntTrue > 1) return FALSE;
 				}
 				if (bv == NULL) return Double.NaN;
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 			}
 			if (cntTrue == 1) return TRUE;
 			else return FALSE;
