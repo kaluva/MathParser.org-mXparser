@@ -226,16 +226,16 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @param      elements   Optional parameters (comma separated) such as Arguments, Constants, Functions
 		 */
 		public Argument(String argumentDefinitionString, params PrimitiveElement[] elements) : base(Argument.TYPE_ID)
-        {
+        	{
 			Argument_Func1(CancellationToken.None, argumentDefinitionString, elements);
-        }
+        	}
 		public Argument(CancellationToken token,String argumentDefinitionString, params PrimitiveElement[] elements) : base(Argument.TYPE_ID)
 		{
 			Argument_Func1(token, argumentDefinitionString, elements);
 		}
 
 		private void Argument_Func1(CancellationToken token, String argumentDefinitionString, params PrimitiveElement[] elements)
-        {
+        	{
 			if (mXparser.regexMatch(argumentDefinitionString, ParserSymbol.nameOnlyTokenRegExp))
 			{
 				argumentName = argumentDefinitionString;
@@ -306,7 +306,7 @@ namespace org.mariuszgromada.math.mxparser {
 		}
 
 		private void Argument_Func2(CancellationToken token, String argumentDefinitionString, bool forceDependent, params PrimitiveElement[] elements)
-        {
+        	{
 			if (mXparser.regexMatch(argumentDefinitionString, ParserSymbol.nameOnlyTokenRegExp))
 			{
 				argumentName = argumentDefinitionString;
