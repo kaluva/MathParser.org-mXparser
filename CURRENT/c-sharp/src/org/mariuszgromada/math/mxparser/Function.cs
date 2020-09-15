@@ -56,6 +56,7 @@
 using org.mariuszgromada.math.mxparser.parsertokens;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace org.mariuszgromada.math.mxparser {
 	/**
@@ -231,22 +232,37 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see        Expression
 		 */
 		public Function(String functionName
+						, String functionExpressionString
+						, params String[] argumentsNames) : base(Function.TYPE_ID)
+        	{
+			ConstructorFunction1(CancellationToken.None, functionName, functionExpressionString, argumentsNames);
+		}
+		public Function(CancellationToken token,String functionName
 						,String  functionExpressionString
 						,params String[] argumentsNames ) : base(Function.TYPE_ID) {
-			if (mXparser.regexMatch(functionName, ParserSymbol.nameOnlyTokenRegExp)) {
+			ConstructorFunction1(token, functionName, functionExpressionString, argumentsNames);
+		}
+
+		private void ConstructorFunction1(CancellationToken token, String functionName
+						, String functionExpressionString
+						, params String[] argumentsNames)
+        	{
+			if (mXparser.regexMatch(functionName, ParserSymbol.nameOnlyTokenRegExp))
+			{
 				this.functionName = functionName;
 				functionExpression = new Expression(functionExpressionString);
 				functionExpression.setDescription(functionName);
 				functionExpression.UDFExpression = true;
 				isVariadic = false;
 				foreach (String argName in argumentsNames)
-					functionExpression.addArguments(new Argument(argName));
+					functionExpression.addArguments(new Argument(token, argName));
 				parametersNumber = argumentsNames.Length - countRecursiveArguments();
 				description = "";
 				functionBodyType = BODY_RUNTIME;
 				addFunctions(this);
 			}
-			else {
+			else
+			{
 				parametersNumber = 0;
 				description = "";
 				functionExpression = new Expression("");
@@ -267,29 +283,43 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see    PrimitiveElement
 		 *
 		 */
-		public Function(String functionDefinitionString, params PrimitiveElement[] elements) : base(Function.TYPE_ID) {
+		public Function(String functionDefinitionString, params PrimitiveElement[] elements) : base(Function.TYPE_ID)
+        	{
+			ConstructorFunction2(CancellationToken.None, functionDefinitionString, elements);
+		}
+		public Function(CancellationToken token,String functionDefinitionString, params PrimitiveElement[] elements) : base(Function.TYPE_ID) {
+			ConstructorFunction2(token, functionDefinitionString, elements);
+		}
+
+		private void ConstructorFunction2(CancellationToken token, String functionDefinitionString, params PrimitiveElement[] elements)
+        	{
 			parametersNumber = 0;
-			if (mXparser.regexMatch(functionDefinitionString, ParserSymbol.functionDefStrRegExp)) {
-				HeadEqBody headEqBody = new HeadEqBody(functionDefinitionString);
+			if (mXparser.regexMatch(functionDefinitionString, ParserSymbol.functionDefStrRegExp))
+			{
+				HeadEqBody headEqBody = new HeadEqBody(token, functionDefinitionString);
 				this.functionName = headEqBody.headTokens[0].tokenStr;
 				functionExpression = new Expression(headEqBody.bodyStr, elements);
 				functionExpression.setDescription(headEqBody.headStr);
 				functionExpression.UDFExpression = true;
 				isVariadic = false;
-				if (headEqBody.headTokens.Count > 1) {
+				if (headEqBody.headTokens.Count > 1)
+				{
 					Token t;
-					for (int i = 1; i < headEqBody.headTokens.Count; i++) {
+					for (int i = 1; i < headEqBody.headTokens.Count; i++)
+					{
 						t = headEqBody.headTokens[i];
 						if (t.tokenTypeId != ParserSymbol.TYPE_ID)
-							functionExpression.addArguments(new Argument(t.tokenStr));
+							functionExpression.addArguments(new Argument(token, t.tokenStr));
 					}
 				}
 				parametersNumber = functionExpression.getArgumentsNumber() - countRecursiveArguments();
 				description = "";
 				functionBodyType = BODY_RUNTIME;
 				addFunctions(this);
-			} else if ( mXparser.regexMatch(functionDefinitionString, ParserSymbol.functionVariadicDefStrRegExp) ) {
-				HeadEqBody headEqBody = new HeadEqBody(functionDefinitionString);
+			}
+			else if (mXparser.regexMatch(functionDefinitionString, ParserSymbol.functionVariadicDefStrRegExp))
+			{
+				HeadEqBody headEqBody = new HeadEqBody(token, functionDefinitionString);
 				this.functionName = headEqBody.headTokens[0].tokenStr;
 				functionExpression = new Expression(headEqBody.bodyStr, elements);
 				functionExpression.setDescription(headEqBody.headStr);
@@ -299,13 +329,16 @@ namespace org.mariuszgromada.math.mxparser {
 				description = "";
 				functionBodyType = BODY_RUNTIME;
 				addFunctions(this);
-			} else {
+			}
+			else
+			{
 				functionExpression = new Expression();
 				functionExpression.setDescription(functionDefinitionString);
 				String errorMessage = ""; errorMessage = errorMessage + "\n [" + functionDefinitionString + "] " + "--> pattern not mathes: f(x1,...,xn) = ... reg exp: " + ParserSymbol.functionDefStrRegExp;
 				functionExpression.setSyntaxStatus(Expression.SYNTAX_ERROR_OR_STATUS_UNKNOWN, errorMessage);
 			}
 		}
+
 		/**
 		 * Constructor for function definition based on
 		 * your own source code - this is via implementation
@@ -387,9 +420,12 @@ namespace org.mariuszgromada.math.mxparser {
 		 *
 		 */
 		public void setFunction(String functionDefinitionString, params PrimitiveElement[] elements) {
+			setFunction(CancellationToken.None, functionDefinitionString, elements);
+		}
+		public void setFunction(CancellationToken token,String functionDefinitionString, params PrimitiveElement[] elements) {
 			parametersNumber = 0;
 			if ( mXparser.regexMatch(functionDefinitionString, ParserSymbol.functionDefStrRegExp) ) {
-				HeadEqBody headEqBody = new HeadEqBody(functionDefinitionString);
+				HeadEqBody headEqBody = new HeadEqBody(token,functionDefinitionString);
 				this.functionName = headEqBody.headTokens[0].tokenStr;
 				functionExpression = new Expression(headEqBody.bodyStr, elements);
 				functionExpression.setDescription(headEqBody.headStr);
@@ -400,7 +436,7 @@ namespace org.mariuszgromada.math.mxparser {
 					for (int i = 1; i < headEqBody.headTokens.Count; i++) {
 						t = headEqBody.headTokens[i];
 						if (t.tokenTypeId != ParserSymbol.TYPE_ID)
-							functionExpression.addArguments(new Argument(t.tokenStr));
+							functionExpression.addArguments(new Argument(token,t.tokenStr));
 					}
 				}
 				parametersNumber = functionExpression.getArgumentsNumber() - countRecursiveArguments();
@@ -408,7 +444,7 @@ namespace org.mariuszgromada.math.mxparser {
 				functionBodyType = BODY_RUNTIME;
 				addFunctions(this);
 			} else if ( mXparser.regexMatch(functionDefinitionString, ParserSymbol.functionVariadicDefStrRegExp) ) {
-				HeadEqBody headEqBody = new HeadEqBody(functionDefinitionString);
+				HeadEqBody headEqBody = new HeadEqBody(token,functionDefinitionString);
 				this.functionName = headEqBody.headTokens[0].tokenStr;
 				functionExpression = new Expression(headEqBody.bodyStr, elements);
 				functionExpression.setDescription(headEqBody.headStr);
@@ -498,9 +534,12 @@ namespace org.mariuszgromada.math.mxparser {
 		 *
 		 */
 		public bool checkSyntax() {
+			return checkSyntax(CancellationToken.None);
+		}
+		public bool checkSyntax(CancellationToken token) {
 			bool syntaxStatus = Function.NO_SYNTAX_ERRORS;
 			if (functionBodyType != BODY_EXTENDED)
-				syntaxStatus = functionExpression.checkSyntax();
+				syntaxStatus = functionExpression.checkSyntax(token);
 			checkRecursiveMode();
 			return syntaxStatus;
 		}
@@ -525,8 +564,11 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @return     Function value as double.
 		 */
 		public double calculate() {
+			return calculate(CancellationToken.None);
+		}
+		public double calculate(CancellationToken token) {
 			if (functionBodyType == BODY_RUNTIME)
-				return functionExpression.calculate();
+				return functionExpression.calculate(token);
 			else
 				if (isVariadic == false)
 					return functionExtension.calculate();
@@ -549,6 +591,9 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @return     function value as double.
 		 */
 		public double calculate(params double[] parameters) {
+			return calculate(CancellationToken.None, parameters);
+		}
+		public double calculate(CancellationToken token,params double[] parameters) {
 			if (parameters.Length > 0) {
 				functionExpression.UDFVariadicParamsAtRunTime = new List<Double>();
 				foreach (double x in parameters)
@@ -556,14 +601,14 @@ namespace org.mariuszgromada.math.mxparser {
 			} else return Double.NaN;
 			if (isVariadic) {
 				if (functionBodyType == BODY_RUNTIME)
-					return functionExpression.calculate();
+					return functionExpression.calculate(token);
 				else
 					return functionExtensionVariadic.calculate(parameters);
 			} else if (parameters.Length == this.getParametersNumber()) {
 				if (functionBodyType == BODY_RUNTIME) {
 					for (int p = 0; p < parameters.Length; p++)
 						setArgumentValue(p, parameters[p]);
-					return functionExpression.calculate();
+					return functionExpression.calculate(token);
 				} else {
 					for (int p = 0; p < parameters.Length; p++)
 						functionExtension.setParameterValue(p, parameters[p]);
@@ -583,30 +628,33 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @return     function value as double
 		 */
 		public double calculate(params Argument[] arguments) {
+			return calculate(CancellationToken.None, arguments);
+		}
+		public double calculate(CancellationToken token,params Argument[] arguments) {
 			double[] parameters;
 			if (arguments.Length > 0) {
 				functionExpression.UDFVariadicParamsAtRunTime = new List<Double>();
 				parameters = new double[arguments.Length];
 				double x;
 				for (int i = 0; i < arguments.Length; i++) {
-					x = arguments[i].getArgumentValue();
+					x = arguments[i].getArgumentValue(token);
 					functionExpression.UDFVariadicParamsAtRunTime.Add(x);
 					parameters[i] = x;
 				}
 			} else return Double.NaN;
 			if (isVariadic) {
 				if (functionBodyType == BODY_RUNTIME)
-					return functionExpression.calculate();
+					return functionExpression.calculate(token);
 				else
 					return functionExtensionVariadic.calculate(parameters);
 			} else if (arguments.Length == this.getParametersNumber()) {
 				if (functionBodyType == BODY_RUNTIME) {
 					for (int p = 0; p < arguments.Length; p++)
-						setArgumentValue(p, arguments[p].getArgumentValue());
-					return functionExpression.calculate();
+						setArgumentValue(p, arguments[p].getArgumentValue(token));
+					return functionExpression.calculate(token);
 				} else {
 					for (int p = 0; p < arguments.Length; p++)
-						functionExtension.setParameterValue(p, arguments[p].getArgumentValue());
+						functionExtension.setParameterValue(p, arguments[p].getArgumentValue(token));
 					return functionExtension.calculate();
 				}
 			}
@@ -680,8 +728,11 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see        RecursiveArgument
 		 */
 		public void defineArguments(params String[] argumentsNames) {
+			defineArguments(CancellationToken.None, argumentsNames);
+		}
+		public void defineArguments(CancellationToken token,params String[] argumentsNames) {
 			if (functionBodyType == Function.BODY_RUNTIME) {
-				functionExpression.defineArguments(argumentsNames);
+				functionExpression.defineArguments(token,argumentsNames);
 				parametersNumber = functionExpression.getArgumentsNumber() - countRecursiveArguments();
 			}
 		}
@@ -1019,10 +1070,14 @@ namespace org.mariuszgromada.math.mxparser {
 		 *
 		 * @see        Function
 		 */
-		public void defineFunction(String functionName, String  functionExpressionString,
+		public void defineFunction(String functionName, String functionExpressionString,
+				params String[] argumentsNames) {
+			defineFunction(CancellationToken.None, functionName, functionExpressionString, argumentsNames);
+		}
+		public void defineFunction(CancellationToken token,String functionName, String  functionExpressionString,
 				params String[] argumentsNames) {
 			if (functionBodyType == Function.BODY_RUNTIME)
-				functionExpression.defineFunction(functionName, functionExpressionString, argumentsNames);
+				functionExpression.defineFunction(token,functionName, functionExpressionString, argumentsNames);
 		}
 		/**
 		 * Gets index of function associated with the function expression.
