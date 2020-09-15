@@ -58,6 +58,7 @@
  *                              "Yes, up to isomorphism."
  */
 using System;
+using System.Threading;
 
 namespace org.mariuszgromada.math.mxparser.mathcollection {
 	/**
@@ -288,6 +289,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *                          otherwise random number.
 		 */
 		public static double rndNormal(double mean, double stddev, Random rnd) {
+			return rndNormal(CancellationToken.None, mean, stddev, rnd);
+		}
+		public static double rndNormal(CancellationToken token,double mean, double stddev, Random rnd) {
 			if (Double.IsNaN(mean)) return Double.NaN;
 			if (Double.IsNaN(stddev)) return Double.NaN;
 			if (rnd == null) return Double.NaN;
@@ -298,7 +302,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double r, fac;
 			bool polarTransform;
 			do {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				a = rnd.NextDouble();
 				b = rnd.NextDouble();
 				v1 = 2.0 * a - 1.0;
@@ -324,7 +328,10 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *                          otherwise random number.
 		 */
 		public static double rndNormal(double mean, double stddev) {
-			return rndNormal(mean, stddev, randomGenerator);
+			return rndNormal(CancellationToken.None, mean, stddev);
+		}
+		public static double rndNormal(CancellationToken token,double mean, double stddev) {
+			return rndNormal(token,mean, stddev, randomGenerator);
 		}
 		/**
 		 * PDF - Probability Distribution Function - Normal distribution N(mean, stddev).
