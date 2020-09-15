@@ -196,7 +196,7 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @param      elements   Optional parameters (comma separated) such as Arguments, Constants, Functions
 		 */
 		public Constant(String constantDefinitionString, params PrimitiveElement[] elements) : base(Constant.TYPE_ID)
-        {
+        	{
 			Constant_Func(CancellationToken.None, constantDefinitionString, elements);
 		}
 		public Constant(CancellationToken token,String constantDefinitionString, params PrimitiveElement[] elements) : base(Constant.TYPE_ID) {
@@ -204,7 +204,7 @@ namespace org.mariuszgromada.math.mxparser {
 		}
 
 		private void Constant_Func(CancellationToken token, String constantDefinitionString, params PrimitiveElement[] elements)
-        {
+        	{
 			description = "";
 			syntaxStatus = SYNTAX_ERROR_OR_STATUS_UNKNOWN;
 			relatedExpressionsList = new List<Expression>();
