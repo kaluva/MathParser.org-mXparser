@@ -56,6 +56,7 @@
 using org.mariuszgromada.math.mxparser.parsertokens;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace org.mariuszgromada.math.mxparser {
 	/**
@@ -137,17 +138,28 @@ namespace org.mariuszgromada.math.mxparser {
 		 */
 		public RecursiveArgument(String argumentName, String recursiveExpressionString, String indexName)
 			: base(argumentName, recursiveExpressionString)
+        	{
+			RecursiveArgumentFunction1(CancellationToken.None, argumentName, recursiveExpressionString, indexName);
+		}
+		public RecursiveArgument(CancellationToken token,String argumentName, String recursiveExpressionString, String indexName)
+			: base(argumentName, recursiveExpressionString)
 		{
-			if (argumentName.Equals(this.getArgumentName())) {
+			RecursiveArgumentFunction1(token, argumentName, recursiveExpressionString, indexName);
+		}
+
+		private void RecursiveArgumentFunction1(CancellationToken token, String argumentName, String recursiveExpressionString, String indexName) {
+			if (argumentName.Equals(this.getArgumentName()))
+			{
 				this.argumentType = RECURSIVE_ARGUMENT;
 				baseValues = new List<Double>();
-				this.n = new Argument(indexName);
+				this.n = new Argument(token, indexName);
 				base.argumentExpression.addArguments(n);
 				base.argumentExpression.addArguments(this);
 				base.argumentExpression.setDescription(argumentName);
 				recursiveCounter = -1;
 			}
 		}
+
 		/**
 		 * Constructor - creates recursive argument.
 		 *
@@ -194,8 +206,18 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see    Argument
 		 */
 		public RecursiveArgument(String argumentDefinitionString, params PrimitiveElement[] elements) : base(argumentDefinitionString)
+        	{
+			RecursiveArgumentFunction2(CancellationToken.None, argumentDefinitionString, elements);
+		}
+		public RecursiveArgument(CancellationToken token,String argumentDefinitionString, params PrimitiveElement[] elements) : base(token,argumentDefinitionString)
 		{
-			if (mXparser.regexMatch(argumentDefinitionString, ParserSymbol.function1ArgDefStrRegExp)) {
+			RecursiveArgumentFunction2(token, argumentDefinitionString, elements);
+		}
+
+		private void RecursiveArgumentFunction2(CancellationToken token, String argumentDefinitionString, params PrimitiveElement[] elements)
+        	{
+			if (mXparser.regexMatch(argumentDefinitionString, ParserSymbol.function1ArgDefStrRegExp))
+			{
 				this.argumentType = RECURSIVE_ARGUMENT;
 				baseValues = new List<Double>();
 				recursiveCounter = -1;
@@ -204,11 +226,13 @@ namespace org.mariuszgromada.math.mxparser {
 				base.argumentExpression.addDefinitions(elements);
 				base.argumentExpression.setDescription(argumentDefinitionString);
 			}
-			else {
+			else
+			{
 				base.argumentExpression = new Expression();
 				base.argumentExpression.setSyntaxStatus(SYNTAX_ERROR_OR_STATUS_UNKNOWN, "[" + argumentDefinitionString + "] " + "Invalid argument definition (patterns: f(n) = f(n-1) ...  ).");
 			}
 		}
+
 		/**
 		 * Adds base case
 		 *
@@ -243,6 +267,9 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @return     value as double
 		 */
 		public double getArgumentValue(double index) {
+			return getArgumentValue(CancellationToken.None, index);
+		}
+		public double getArgumentValue(CancellationToken token,double index) {
 			/*
 			 * Remember starting index
 			 */
@@ -297,7 +324,7 @@ namespace org.mariuszgromada.math.mxparser {
 					/*
 					 * perform recursive call
 					 */
-					double value = newExp.calculate();
+					double value = newExp.calculate(token);
 					/*
 					 * remember calculated in the base values array
 					 */
