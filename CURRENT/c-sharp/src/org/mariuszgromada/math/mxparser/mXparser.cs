@@ -57,6 +57,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Threading;
 
 using org.mariuszgromada.math.mxparser.mathcollection;
 using org.mariuszgromada.math.mxparser.parsertokens;
@@ -275,7 +276,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see PrimesCache
 		 */
 		public static void initPrimesCache() {
-			primesCache = new PrimesCache();
+			initPrimesCache(CancellationToken.None);
+		}
+		public static void initPrimesCache(CancellationToken token) {
+			primesCache = new PrimesCache(token);
 		}
 		/**
 		 * Returns true in case when primes cache initialization was successful,
@@ -297,7 +301,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see PrimesCache
 		 */
 		public static void initPrimesCache(int mximumNumberInCache) {
-			primesCache = new PrimesCache(mximumNumberInCache);
+			initPrimesCache(CancellationToken.None, mximumNumberInCache);
+		}
+		public static void initPrimesCache(CancellationToken token,int mximumNumberInCache) {
+			primesCache = new PrimesCache(token,mximumNumberInCache);
 		}
 		/**
 		 * Initialization of prime numbers cache.
@@ -365,8 +372,11 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see        Expression
 		 */
 		public static double getFunctionValue(Expression f, Argument x, double x0) {
+			return getFunctionValue(CancellationToken.None, f, x, x0);
+		}
+		public static double getFunctionValue(CancellationToken token,Expression f, Argument x, double x0) {
 			x.setArgumentValue(x0);
-			return f.calculate();
+			return f.calculate(token);
 		}
 		/**
 		 * Converts List of double to double[]
@@ -396,6 +406,9 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @return             Array of function values
 		 */
 		public static double[] getFunctionValues(Expression f, Argument index, double from, double to, double delta) {
+			return getFunctionValues(CancellationToken.None, f, index, from, to, delta);
+		}
+		public static double[] getFunctionValues(CancellationToken token,Expression f, Argument index, double from, double to, double delta) {
 			if ((Double.IsNaN(delta)) || (Double.IsNaN(from)) || (Double.IsNaN(to)) || (delta == 0))
 				return null;
 			int n = 0;
@@ -407,10 +420,10 @@ namespace org.mariuszgromada.math.mxparser {
 				values = new double[n];
 				int j = 0;
 				for (double i = from; i < to; i += delta) {
-					values[j] = getFunctionValue(f, index, i);
+					values[j] = getFunctionValue(token,f, index, i);
 					j++;
 				}
-				values[j] = getFunctionValue(f, index, to);
+				values[j] = getFunctionValue(token,f, index, to);
 			} else if ((to <= from) && (delta < 0)) {
 				for (double i = from; i > to; i += delta)
 					n++;
@@ -418,14 +431,14 @@ namespace org.mariuszgromada.math.mxparser {
 				values = new double[n];
 				int j = 0;
 				for (double i = from; i > to; i += delta) {
-					values[j] = getFunctionValue(f, index, i);
+					values[j] = getFunctionValue(token,f, index, i);
 					j++;
 				}
-				values[j] = getFunctionValue(f, index, to);
+				values[j] = getFunctionValue(token,f, index, to);
 			} else if (from == to) {
 				n = 1;
 				values = new double[n];
-				values[0] = getFunctionValue(f, index, from);
+				values[0] = getFunctionValue(token,f, index, from);
 			} else values = null;
 			return values;
 		}
@@ -1088,7 +1101,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 *                         possible the Double.NaN is returned.
 		 */
 		public static double convOthBase2Decimal(String numberLiteral, int numeralSystemBase) {
-			return NumberTheory.convOthBase2Decimal(numberLiteral, numeralSystemBase);
+			return convOthBase2Decimal(CancellationToken.None, numberLiteral, numeralSystemBase);
+		}
+		public static double convOthBase2Decimal(CancellationToken token,String numberLiteral, int numeralSystemBase) {
+			return NumberTheory.convOthBase2Decimal(token,numberLiteral, numeralSystemBase);
 		}
 		/**
 		 * Other base (base between 1 and 36) number literal conversion to decimal number.
@@ -1111,7 +1127,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 *             possible the Double.NaN is returned.
 		 */
 		public static double convOthBase2Decimal(String numberLiteral) {
-			return NumberTheory.convOthBase2Decimal(numberLiteral);
+			return convOthBase2Decimal(CancellationToken.None, numberLiteral);
+		}
+		public static double convOthBase2Decimal(CancellationToken token,String numberLiteral) {
+			return NumberTheory.convOthBase2Decimal(token,numberLiteral);
 		}
 		/**
 		 * Other base to decimal conversion.
@@ -1122,7 +1141,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 *                            Double.NaN is returned.
 		 */
 		public static double convOthBase2Decimal(int numeralSystemBase, params int[] digits) {
-			return NumberTheory.convOthBase2Decimal(numeralSystemBase, digits);
+			return convOthBase2Decimal(CancellationToken.None, numeralSystemBase, digits);
+		}
+		public static double convOthBase2Decimal(CancellationToken token,int numeralSystemBase, params int[] digits) {
+			return NumberTheory.convOthBase2Decimal(token,numeralSystemBase, digits);
 		}
 		/**
 		 * Other base to decimal conversion.
@@ -1133,7 +1155,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 *                            Double.NaN is returned.
 		 */
 		public static double convOthBase2Decimal(double numeralSystemBase, params double[] digits) {
-			return NumberTheory.convOthBase2Decimal(numeralSystemBase, digits);
+			return convOthBase2Decimal(CancellationToken.None, numeralSystemBase, digits);
+		}
+		public static double convOthBase2Decimal(CancellationToken token,double numeralSystemBase, params double[] digits) {
+			return NumberTheory.convOthBase2Decimal(token,numeralSystemBase, digits);
 		}
 		/**
 		 * Decimal number to other numeral system conversion with base
@@ -1151,7 +1176,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 *                   the "NaN" string is returned.
 		 */
 		public static String convDecimal2OthBase(double decimalNumber, int numeralSystemBase) {
-			return NumberTheory.convDecimal2OthBase(decimalNumber, numeralSystemBase);
+			return convDecimal2OthBase(CancellationToken.None, decimalNumber, numeralSystemBase);
+		}
+		public static String convDecimal2OthBase(CancellationToken token,double decimalNumber, int numeralSystemBase) {
+			return NumberTheory.convDecimal2OthBase(token,decimalNumber, numeralSystemBase);
 		}
 		/**
 		 * Decimal number to other numeral system conversion with base
@@ -1178,7 +1206,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * If conversion was not possible the "NaN" string is returned.
 		 */
 		public static String convDecimal2OthBase(double decimalNumber, int numeralSystemBase, int format) {
-			return NumberTheory.convDecimal2OthBase(decimalNumber, numeralSystemBase, format);
+			return convDecimal2OthBase(CancellationToken.None, decimalNumber, numeralSystemBase, format);
+		}
+		public static String convDecimal2OthBase(CancellationToken token,double decimalNumber, int numeralSystemBase, int format) {
+			return NumberTheory.convDecimal2OthBase(token,decimalNumber, numeralSystemBase, format);
 		}
 		/**
 		 * Converts double value to its fraction representation.
@@ -1191,7 +1222,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * assigned to all the fields.
 		 */
 		public static double[] toFraction(double value) {
-			return NumberTheory.toFraction(value);
+			return toFraction(CancellationToken.None, value);
+		}
+		public static double[] toFraction(CancellationToken token,double value) {
+			return NumberTheory.toFraction(token,value);
 		}
 		/**
 		 * Converts double value to its mixed fraction representation.
@@ -1205,7 +1239,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * assigned to both numerator and denominator.
 		 */
 		public static double[] toMixedFraction(double value) {
-			return NumberTheory.toMixedFraction(value);
+			return toMixedFraction(CancellationToken.None, value);
+		}
+		public static double[] toMixedFraction(CancellationToken token,double value) {
+			return NumberTheory.toMixedFraction(token,value);
 		}
 		/**
 		 * Converts array representing fraction to fraction string representation.
@@ -1229,7 +1266,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see NumberTheory#fractionToString(double[])
 		 */
 		public static String toFractionString(double value) {
-			return NumberTheory.toFractionString(value);
+			return toFractionString(CancellationToken.None, value);
+		}
+		public static String toFractionString(CancellationToken token,double value) {
+			return NumberTheory.toFractionString(token,value);
 		}
 		/**
 		 * Converts number to its mixed fraction string representation.
@@ -1241,7 +1281,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see NumberTheory#fractionToString(double[])
 		 */
 		public static String toMixedFractionString(double value) {
-			return NumberTheory.toMixedFractionString(value);
+			return toMixedFractionString(CancellationToken.None, value);
+		}
+		public static String toMixedFractionString(CancellationToken token,double value) {
+			return NumberTheory.toMixedFractionString(token,value);
 		}
 		public static void doNothing(Object o) {
 		}
@@ -1571,6 +1614,10 @@ namespace org.mariuszgromada.math.mxparser {
 		 * @see {@link #resetCancelCurrentCalculationFlag()}
 		 */
 		public static bool isCurrentCalculationCancelled() {
+			return isCurrentCalculationCancelled(CancellationToken.None);
+		}
+		public static bool isCurrentCalculationCancelled(CancellationToken token) {
+			token.ThrowIfCancellationRequested();
 			return cancelCurrentCalculationFlag;
 		}
 		/*
