@@ -56,6 +56,7 @@
 using org.mariuszgromada.math.mxparser.parsertokens;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace org.mariuszgromada.math.mxparser {
 	/*=================================================
@@ -241,7 +242,7 @@ namespace org.mariuszgromada.math.mxparser {
 		internal int eqPos;
 		internal List<Token> headTokens;
 		internal bool definitionError;
-		internal HeadEqBody(String definitionString) {
+		internal HeadEqBody(CancellationToken token,String definitionString) {
 			char c;
 			eqPos = 0;
 			int matchStatus = mXparser.NOT_FOUND;
@@ -255,7 +256,7 @@ namespace org.mariuszgromada.math.mxparser {
 				headStr = definitionString.Substring(0, eqPos);
 				bodyStr = definitionString.Substring(eqPos + 1);
 				Expression headExpression = new Expression(headStr, ONLY_PARSER_KEYWORDS);
-				headTokens = headExpression.getCopyOfInitialTokens();
+				headTokens = headExpression.getCopyOfInitialTokens(token);
 			} else {
 				definitionError = true;
 				headStr = "";
