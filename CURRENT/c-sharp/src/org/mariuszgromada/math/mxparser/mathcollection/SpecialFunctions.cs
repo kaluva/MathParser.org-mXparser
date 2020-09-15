@@ -58,6 +58,8 @@
  *                              "Yes, up to isomorphism."
  */
 using System;
+using System.Threading;
+
 namespace org.mariuszgromada.math.mxparser.mathcollection {
 	/**
 	 * SpecialFunctions - special (non-elementary functions).
@@ -89,17 +91,20 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Exponential integral function Ei(x)
 		 */
 		public static double exponentialIntegralEi(double x) {
+			return exponentialIntegralEi(CancellationToken.None, x);
+		}
+		public static double exponentialIntegralEi(CancellationToken token,double x) {
 			if (Double.IsNaN(x))
 				return Double.NaN;
 			if (x < -5.0)
-				return continuedFractionEi(x);
+				return continuedFractionEi(token,x);
 			if (x == 0.0)
 				return -Double.MaxValue;
 			if (x < 6.8)
-				return powerSeriesEi(x);
+				return powerSeriesEi(token,x);
 			if (x < 50.0)
-				return argumentAdditionSeriesEi(x);
-			return continuedFractionEi(x);
+				return argumentAdditionSeriesEi(token,x);
+			return continuedFractionEi(token,x);
 		}
 		/**
 		 * Constants for Exponential integral function Ei(x) calculation
@@ -110,7 +115,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * Supporting function
 		 * while Exponential integral function Ei(x) calculation
 		 */
-		private static double continuedFractionEi(double x) {
+		private static double continuedFractionEi(CancellationToken token,double x) {
 			double Am1 = 1.0;
 			double A0 = 0.0;
 			double Bm1 = 0.0;
@@ -122,7 +127,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			int j = 1;
 			a = 1.0;
 			while (Math.Abs(Ap1 * B0 - A0 * Bp1) > EI_EPSILON * Math.Abs(A0 * Bp1)) {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				if (Math.Abs(Bp1) > 1.0) {
 					Am1 = A0 / Bp1;
 					A0 = Ap1 / Bp1;
@@ -146,7 +151,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * Supporting function
 		 * while Exponential integral function Ei(x) calculation
 		 */
-		private static double powerSeriesEi(double x) {
+		private static double powerSeriesEi(CancellationToken token,double x) {
 			double xn = -x;
 			double Sn = -x;
 			double Sm1 = 0.0;
@@ -157,7 +162,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if (x == 0.0)
 				return -Double.MaxValue;
 			while (Math.Abs(Sn - Sm1) > EI_EPSILON * Math.Abs(Sm1)) {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				Sm1 = Sn;
 				y += 1.0;
 				xn *= (-x);
@@ -171,7 +176,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * Supporting function
 		 * while Exponential integral function Ei(x) calculation
 		 */
-		private static double argumentAdditionSeriesEi(double x) {
+		private static double argumentAdditionSeriesEi(CancellationToken token,double x) {
 			int k = (int)(x + 0.5);
 			int j = 0;
 			double xx = k;
@@ -184,7 +189,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double factorial = 1.0;
 			double dxj = 1.0;
 			while (Math.Abs(term) > EI_EPSILON * Math.Abs(Sn)) {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				j++;
 				factorial *= j;
 				xxj *= xx;
@@ -201,6 +206,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Logarithmic integral function li(x)
 		 */
 		public static double logarithmicIntegralLi(double x) {
+			return logarithmicIntegralLi(CancellationToken.None, x);
+		}
+		public static double logarithmicIntegralLi(CancellationToken token,double x) {
 			if (Double.IsNaN(x))
 				return Double.NaN;
 			if (x < 0)
@@ -209,7 +217,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				return 0;
 			if (x == 2)
 				return MathConstants.LI2;
-			return exponentialIntegralEi(MathFunctions.ln(x));
+			return exponentialIntegralEi(token,MathFunctions.ln(x));
 		}
 		/**
 		 * Offset logarithmic integral function Li(x)
@@ -217,13 +225,16 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Offset logarithmic integral function Li(x)
 		 */
 		public static double offsetLogarithmicIntegralLi(double x) {
+			return offsetLogarithmicIntegralLi(CancellationToken.None, x);
+		}
+		public static double offsetLogarithmicIntegralLi(CancellationToken token,double x) {
 			if (Double.IsNaN(x))
 				return Double.NaN;
 			if (x < 0)
 				return Double.NaN;
 			if (x == 0)
 				return -MathConstants.LI2;
-			return logarithmicIntegralLi(x) - MathConstants.LI2;
+			return logarithmicIntegralLi(token,x) - MathConstants.LI2;
 		}
 		/**
 		 * Calculates the error function
@@ -414,7 +425,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @param n Integer number
 		 * @return  Returns Gamma function for the integers.
 		 */
-		private static double gammaInt(long n) {
+		private static double gammaInt(CancellationToken token,long n) {
 			if (n == 0) return MathConstants.EULER_MASCHERONI;
 			if (n == 1) return 1;
 			if (n == 2) return 1;
@@ -426,14 +437,14 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if (n == 8) return 1.0*2.0*3.0*4.0*5.0*6.0*7.0;
 			if (n == 9) return 1.0*2.0*3.0*4.0*5.0*6.0*7.0*8.0;
 			if (n == 10) return 1.0*2.0*3.0*4.0*5.0*6.0*7.0*8.0*9.0;
-			if (n >= 11) return MathFunctions.factorial(n-1);
+			if (n >= 11) return MathFunctions.factorial(token,n-1);
 			//if (n == -1) return MathConstants.EULER_MASCHERONI - 1;
 			if (n <= -1) {
 				long r = -n;
-				double factr = MathFunctions.factorial(r);
+				double factr = MathFunctions.factorial(token,r);
 				double sign = -1;
 				if (r % 2 == 0) sign = 1;
-				return sign / (r * factr) - (1.0 / r) * gammaInt(n + 1);
+				return sign / (r * factr) - (1.0 / r) * gammaInt(token,n + 1);
 			}
 			return Double.NaN;
 		}
@@ -444,6 +455,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return  Returns gamma function value.
 		 */
 		public static double gamma(double x) {
+			return gamma(CancellationToken.None, x);
+		}
+		public static double gamma(CancellationToken token,double x) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsPositiveInfinity(x)) return Double.PositiveInfinity;
 			if (Double.IsNegativeInfinity(x)) return Double.NaN;
@@ -452,9 +466,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if ( MathFunctions.abs(xabs-xint) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON ) {
 				long n = (long)xint;
 				if (x < 0) n = -n;
-				return gammaInt(n);
+				return gammaInt(token,n);
 			}
-			return lanchosGamma(x);
+			return lanchosGamma(token,x);
 		}
 		/**
 		 * Gamma function implementation based on
@@ -464,18 +478,21 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return     Gamma function value (Lanchos approx).
 		 */
 		public static double lanchosGamma(double x) {
+			return lanchosGamma(CancellationToken.None, x);
+		}
+		public static double lanchosGamma(CancellationToken token,double x) {
 			if (Double.IsNaN(x)) return Double.NaN;
 
 			double xabs = MathFunctions.abs(x);
 			double xint = Math.Round(xabs);
 			if (x > BinaryRelations.DEFAULT_COMPARISON_EPSILON) {
 				if ( MathFunctions.abs(xabs-xint) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON )
-					return MathFunctions.factorial(xint-1);
+					return MathFunctions.factorial(token,xint-1);
 			} else if (x < -BinaryRelations.DEFAULT_COMPARISON_EPSILON) {
 				if ( MathFunctions.abs(xabs-xint) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON )
 					return Double.NaN;
 			} else return Double.NaN;
-			if(x < 0.5) return MathConstants.PI / (Math.Sin(MathConstants.PI * x) * lanchosGamma(1-x));
+			if(x < 0.5) return MathConstants.PI / (Math.Sin(MathConstants.PI * x) * lanchosGamma(token,1-x));
 			int g = 7;
 			x -= 1;
 			double a = Coefficients.lanchosGamma[0];
@@ -491,19 +508,22 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return  Returns log value from gamma function.
 		 */
 		public static double logGamma(double x) {
+			return logGamma(CancellationToken.None, x);
+		}
+		public static double logGamma(CancellationToken token,double x) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsPositiveInfinity(x)) return Double.PositiveInfinity;
 			if (Double.IsNegativeInfinity(x)) return Double.NaN;
 			if (MathFunctions.isInteger(x)) {
 				if (x >= 0)
-					return Math.Log( Math.Abs( gammaInt( (long)(Math.Round(x) ) ) ) );
+					return Math.Log( Math.Abs( gammaInt(token, (long)(Math.Round(x) ) ) ) );
 				else
-					return Math.Log( Math.Abs( gammaInt( -(long)(Math.Round(-x) ) ) ) );
+					return Math.Log( Math.Abs( gammaInt(token, -(long)(Math.Round(-x) ) ) ) );
 			}
 			double p, q, w, z;
 			if (x < -34.0) {
 				q = -x;
-				w = logGamma(q);
+				w = logGamma(token,q);
 				p = Math.Floor(q);
 				if (Math.Abs(p-q) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return Double.NaN;
 				z = q - p;
@@ -549,11 +569,14 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return  Returns signum of the gamma(x)
 		 */
 		public static double sgnGamma(double x) {
+			return sgnGamma(CancellationToken.None, x);
+		}
+		public static double sgnGamma(CancellationToken token,double x) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsPositiveInfinity(x)) return 1;
 			if (Double.IsNegativeInfinity(x)) return Double.NaN;
 			if (x > 0) return 1;
-			if (MathFunctions.isInteger(x)) return MathFunctions.sgn( gammaInt( -(long)(Math.Round(-x) ) ) );
+			if (MathFunctions.isInteger(x)) return MathFunctions.sgn( gammaInt(token, -(long)(Math.Round(-x) ) ) );
 			x = -x;
 			double fx = Math.Floor(x);
 			double div2remainder = Math.Floor(fx % 2);
@@ -567,11 +590,14 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Value of the regularized lower gamma function 'P'.
 		 */
 		public static double regularizedGammaLowerP(double s, double x) {
+			return regularizedGammaLowerP(CancellationToken.None, s, x);
+		}
+		public static double regularizedGammaLowerP(CancellationToken token,double s, double x) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsNaN(s)) return Double.NaN;
 			if (MathFunctions.almostEqual(x, 0)) return 0;
 			if (MathFunctions.almostEqual(s, 0))
-				return 1 + SpecialFunctions.exponentialIntegralEi(-x) / MathConstants.EULER_MASCHERONI;
+				return 1 + SpecialFunctions.exponentialIntegralEi(token,-x) / MathConstants.EULER_MASCHERONI;
 
 			if (MathFunctions.almostEqual(s, 1))
 				return 1 - Math.Exp(-x);
@@ -579,13 +605,13 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if (x < 0) return Double.NaN;
 
 			if (s < 0)
-				return regularizedGammaLowerP(s + 1, x) + ( Math.Pow(x,  s) * Math.Exp(-x) ) / ( s * gamma(s) );
+				return regularizedGammaLowerP(token,s + 1, x) + ( Math.Pow(x,  s) * Math.Exp(-x) ) / ( s * gamma(token,s) );
 
 			const double epsilon = 0.000000000000001;
 			const double bigNumber = 4503599627370496.0;
 			const double bigNumberInverse = 2.22044604925031308085e-16;
 
-			double ax = (s * Math.Log(x)) - x - logGamma(s);
+			double ax = (s * Math.Log(x)) - x - logGamma(token,s);
 			if (ax < -709.78271289338399) {
 				return 1;
 			}
@@ -615,7 +641,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double error;
 
 			do {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
         		c++;
         		y += 1;
         		z += 2;
@@ -657,7 +683,10 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Value of the incomplete lower gamma function.
 		 */
 		public static double incompleteGammaLower(double s, double x) {
-			return gamma(s) * regularizedGammaLowerP(s, x);
+			return incompleteGammaLower(CancellationToken.None, s, x);
+		}
+		public static double incompleteGammaLower(CancellationToken token,double s, double x) {
+			return gamma(token,s) * regularizedGammaLowerP(token,s, x);
 		}
 		/**
 		 * Regularized upper gamma function 'Q'
@@ -666,12 +695,15 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Value of the regularized upper gamma function 'Q'.
 		 */
 		public static double regularizedGammaUpperQ(double s, double x) {
+			return regularizedGammaUpperQ(CancellationToken.None, s, x);
+		}
+		public static double regularizedGammaUpperQ(CancellationToken token,double s, double x) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsNaN(s)) return Double.NaN;
 			if (MathFunctions.almostEqual(x, 0)) return 1;
 
 			if (MathFunctions.almostEqual(s, 0))
-				return -SpecialFunctions.exponentialIntegralEi(-x) / MathConstants.EULER_MASCHERONI;
+				return -SpecialFunctions.exponentialIntegralEi(token,-x) / MathConstants.EULER_MASCHERONI;
 
 			if (MathFunctions.almostEqual(s, 1))
 				return Math.Exp(-x);
@@ -679,9 +711,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if (x < 0) return Double.NaN;
 
 			if (s < 0)
-				return regularizedGammaUpperQ(s + 1, x) - ( Math.Pow(x,  s) * Math.Exp(-x) ) / ( s * gamma(s) );
+				return regularizedGammaUpperQ(token,s + 1, x) - ( Math.Pow(x,  s) * Math.Exp(-x) ) / ( s * gamma(token,s) );
 
-			double ax = s * Math.Log(x) - x - logGamma(s);
+			double ax = s * Math.Log(x) - x - logGamma(token,s);
 			if (ax < -709.78271289338399) {
         		return 0;
 			}
@@ -700,7 +732,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double qkm1 = z * x;
 			double ans = pkm1 / qkm1;
 			do {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
         		c = c + 1;
         		y = y + 1;
         		z = z + 2;
@@ -736,7 +768,10 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Value of the incomplete upper gamma function.
 		 */
 		public static double incompleteGammaUpper(double s, double x) {
-			return gamma(s) * regularizedGammaUpperQ(s, x);
+			return incompleteGammaUpper(CancellationToken.None, s, x);
+		}
+		public static double incompleteGammaUpper(CancellationToken token,double s, double x) {
+			return gamma(token,s) * regularizedGammaUpperQ(token,s, x);
 		}
 		/**
 		 * Digamma function as the logarithmic derivative of the Gamma special function
@@ -744,6 +779,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return Approximated value of the digamma function.
 		 */
 		public static double diGamma(double x) {
+			return diGamma(CancellationToken.None, x);
+		}
+		public static double diGamma(CancellationToken token,double x) {
 			const double c = 12.0;
 			const double d1 = -0.57721566490153286;
 			const double d2 = 1.6449340668482264365;
@@ -761,13 +799,13 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					return Double.NaN;
 
 			// Use inversion formula for negative numbers.
-			if (x < 0) return diGamma(1.0 - x) + (MathConstants.PI/Math.Tan(-Math.PI*x));
+			if (x < 0) return diGamma(token,1.0 - x) + (MathConstants.PI/Math.Tan(-Math.PI*x));
 
 			if (x <= s) return d1 - (1/x) + (d2*x);
 
 			double result = 0;
 			while (x < c) {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				result -= 1/x;
 				x++;
 			}
@@ -791,18 +829,21 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return  Return logBeta special function (for positive x and positive y)
 		 */
 		public static double logBeta(double x, double y) {
+			return logBeta(CancellationToken.None, x, y);
+		}
+		public static double logBeta(CancellationToken token,double x, double y) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsNaN(y)) return Double.NaN;
 			if ( (x <= 0) || (y <= 0) ) return Double.NaN;
 
-			double lgx = logGamma(x);
-			if (Double.IsNaN(lgx)) lgx = Math.Log( Math.Abs( gamma(x) ) );
+			double lgx = logGamma(token,x);
+			if (Double.IsNaN(lgx)) lgx = Math.Log( Math.Abs( gamma(token,x) ) );
 
-			double lgy = logGamma(y);
-			if (Double.IsNaN(lgy)) lgy = Math.Log( Math.Abs( gamma(y) ) );
+			double lgy = logGamma(token,y);
+			if (Double.IsNaN(lgy)) lgy = Math.Log( Math.Abs( gamma(token,y) ) );
 
-			double lgxy = logGamma(x+y);
-			if (Double.IsNaN(lgy)) lgxy = Math.Log( Math.Abs( gamma(x+y) ) );
+			double lgxy = logGamma(token,x+y);
+			if (Double.IsNaN(lgy)) lgxy = Math.Log( Math.Abs( gamma(token,x+y) ) );
 
 			if ( (!Double.IsNaN(lgx)) && (!Double.IsNaN(lgy)) && (!Double.IsNaN(lgxy)) )
 				return (lgx + lgy - lgxy);
@@ -815,11 +856,14 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @return  Return Beta special function (for positive x and positive y)
 		 */
 		public static double beta(double x, double y) {
+			return beta(CancellationToken.None, x, y);
+		}
+		public static double beta(CancellationToken token,double x, double y) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsNaN(y)) return Double.NaN;
 			if ( (x <= 0) || (y <= 0) ) return Double.NaN;
-			if ( (x > 99) || (y > 99) ) return Math.Exp(logBeta(x, y));
-			return gamma(x)*gamma(y) / gamma(x+y);
+			if ( (x > 99) || (y > 99) ) return Math.Exp(logBeta(token,x, y));
+			return gamma(token,x)*gamma(token,y) / gamma(token,x+y);
 		}
 		/**
 		 * Log Incomplete Beta special function
@@ -831,6 +875,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *
 		 */
 		public static double incompleteBeta(double a, double b, double x) {
+			return incompleteBeta(CancellationToken.None, a, b, x);
+		}
+		public static double incompleteBeta(CancellationToken token,double a, double b, double x) {
 			if (Double.IsNaN(a)) return Double.NaN;
 			if (Double.IsNaN(b)) return Double.NaN;
 			if (Double.IsNaN(x)) return Double.NaN;
@@ -838,7 +885,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if (x > 1+BinaryRelations.DEFAULT_COMPARISON_EPSILON) return Double.NaN;
 			if ( (a <= 0) || (b <= 0) ) return Double.NaN;
 			if (MathFunctions.almostEqual(x, 0)) return 0;
-			if (MathFunctions.almostEqual(x, 1)) return beta(a, b);
+			if (MathFunctions.almostEqual(x, 1)) return beta(token,a, b);
 			bool aEq0 = MathFunctions.almostEqual(a, 0);
 			bool bEq0 = MathFunctions.almostEqual(b, 0);
 			bool aIsInt = MathFunctions.isInteger(a);
@@ -856,7 +903,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					if (n == 2) return Math.Log(x) + x;
 					double v = Math.Log(x);
 					for (long i = 1; i <= n-1; i++)
-						v -= MathFunctions.binomCoeff(n-1, i) * Math.Pow(-1, i) * ( Math.Pow(x, i) / i );
+						v -= MathFunctions.binomCoeff(token,n-1, i) * Math.Pow(-1, i) * ( Math.Pow(x, i) / i );
 					return v;
 				}
 				if (n <= -1) {
@@ -884,7 +931,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					for (long i = 1; i <= -n; i++)
 						v += Math.Pow(1-x, -i) / i;
 					for (long i = 1; i <= -n; i++)
-						v -= Math.Pow( MathFunctions.factorial(i-1) , 2) / i;
+						v -= Math.Pow( MathFunctions.factorial(token,i-1) , 2) / i;
 					return v;
 				}
 			}
@@ -894,7 +941,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 					if (n <= -1) return -( 1/(-n) ) * Math.Pow(x, n);
 				}
 			}
-			return regularizedBeta(a, b, x)*beta(a, b);
+			return regularizedBeta(token,a, b, x)*beta(token,a, b);
 		}
 		private static double nextUp(double d) {
 			// Check for special values
@@ -921,6 +968,9 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * for positive a and positive b and x between 0 and 1
 		 */
 		public static double regularizedBeta(double a, double b, double x) {
+			return regularizedBeta(CancellationToken.None, a, b, x);
+		}
+		public static double regularizedBeta(CancellationToken token,double a, double b, double x) {
 			if (Double.IsNaN(a)) return Double.NaN;
 			if (Double.IsNaN(b)) return Double.NaN;
 			if (Double.IsNaN(x)) return Double.NaN;
@@ -932,7 +982,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 
 			double bt = (x == 0.0 || x == 1.0)
 				? 0.0
-				: Math.Exp(logGamma(a + b) - logGamma(a) - logGamma(b) + (a*Math.Log(x)) + (b*Math.Log(1.0 - x)));
+				: Math.Exp(logGamma(token,a + b) - logGamma(token,a) - logGamma(token,b) + (a*Math.Log(x)) + (b*Math.Log(1.0 - x)));
 
 			bool symmetryTransformation = x >= (a + 1.0)/(a + b + 2.0);
 
@@ -962,7 +1012,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			double h = d;
 
 			for (int m = 1, m2 = 2; m <= 50000; m++, m2 += 2) {
-				if (mXparser.isCurrentCalculationCancelled()) return Double.NaN;
+				if (mXparser.isCurrentCalculationCancelled(token)) return Double.NaN;
 				double aa = m*(b - m)*x/((qam + m2)*(a + m2));
 				d = 1.0 + (aa*d);
 
@@ -1011,12 +1061,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @param maxIter   Maximum number of iteration
 		 * @return          Halley iteration value if succesfull, otherwise Double.NaN
 		 */
-		private static double halleyIteration(double x, double wInitial, int maxIter) {
+		private static double halleyIteration(CancellationToken token,double x, double wInitial, int maxIter) {
 			double w = wInitial;
 			double tol = 1;
 			double t = 0, p, e;
 			for (int i = 0; i < maxIter; i++) {
-				if (mXparser.isCurrentCalculationCancelled())
+				if (mXparser.isCurrentCalculationCancelled(token))
 					return Double.NaN;
 				e = Math.Exp(w);
 				p = w + 1.0;
@@ -1047,7 +1097,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 * @param x
 		 * @return Approximation of principal branch of Lambert-W function
 		 */
-		private static double lambertW0(double x) {
+		private static double lambertW0(CancellationToken token,double x) {
 			if (Math.Abs(x) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return 0;
 			if (Math.Abs(x + MathConstants.EXP_MINUS_1) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return -1;
 			if (Math.Abs(x - 1) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return MathConstants.OMEGA;
@@ -1066,12 +1116,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 				w = Math.Log(x);
 				if (x > 3.0) w -= Math.Log(w);
 			}
-			return halleyIteration(x, w, MAX_ITER);
+			return halleyIteration(token,x, w, MAX_ITER);
 		}
 		/**
 		 * Minus 1 branch of Lambert-W function
 		 * Analytical approximations for real values of the Lambert W-function - D.A. Barry
-		 * Mathematics and Computers in Simulation 53 (2000) 95–103
+		 * Mathematics and Computers in Simulation 53 (2000) 95ï¿½103
 		 * @param x
 		 * @return Approxmiation of minus 1 branch of Lambert-W function
 		 */
@@ -1081,7 +1131,7 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 			if (Math.Abs(x + MathConstants.EXP_MINUS_1) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return -1;
 			/*
 			 * Analytical approximations for real values of the Lambert W-function - D.A. Barry
-			 * Mathematics and Computers in Simulation 53 (2000) 95–103
+			 * Mathematics and Computers in Simulation 53 (2000) 95ï¿½103
 			 */
 			double M1 = 0.3361;
 			double M2 = -0.0042;
@@ -1097,9 +1147,12 @@ namespace org.mariuszgromada.math.mxparser.mathcollection {
 		 *               Minus 1 branch for x greater or equal than -1/e and lower than 0, otherwise Double.NaN.
 		 */
 		public static double lambertW(double x, double branch) {
+			return lambertW(CancellationToken.None, x, branch);
+		}
+		public static double lambertW(CancellationToken token,double x, double branch) {
 			if (Double.IsNaN(x)) return Double.NaN;
 			if (Double.IsNaN(branch)) return Double.NaN;
-			if (Math.Abs(branch) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return lambertW0(x);
+			if (Math.Abs(branch) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return lambertW0(token,x);
 			if (Math.Abs(branch + 1) <= BinaryRelations.DEFAULT_COMPARISON_EPSILON) return lambertW1(x);
 			return Double.NaN;
 		}
